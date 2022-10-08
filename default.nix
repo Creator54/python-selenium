@@ -1,11 +1,9 @@
 with import <nixpkgs> { };
-
 pkgs.mkShell rec {
   name = "impurePythonEnv";
   venvDir = "./.venv";
   buildInputs = [
-    python38Packages.python
-    zlib
+    python38Packages.python #set your python interpreter for the project
   ];
 
   shellHook = ''
@@ -13,10 +11,11 @@ pkgs.mkShell rec {
     SOURCE_DATE_EPOCH=$(date +%s)
 
     if ! [ -d "${venvDir}" ]; then
-      ${python38Packages.python.interpreter} -m venv "${venvDir}"
+      python -m venv "${venvDir}"
     fi
     export LD_LIBRARY_PATH="${lib.makeLibraryPath [ zlib stdenv.cc.cc ]}":LD_LIBRARY_PATH;
     source "${venvDir}/bin/activate"
+    python -m pip install --upgrade pip
     pip install -r requirements.txt
   '';
 }
