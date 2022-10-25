@@ -1,10 +1,8 @@
 with import <nixpkgs> { };
 pkgs.mkShell rec {
-  name = "impurePythonEnv";
+  name = "impurePythonEnv-Selenium";
   venvDir = "./.venv";
-  buildInputs = [
-    python38Packages.python #set your python interpreter for the project
-  ];
+  buildInputs = [ python3 ];
 
   shellHook = ''
     set -h #remove "bash: hash: hashing disabled" warning !
@@ -16,6 +14,15 @@ pkgs.mkShell rec {
     export LD_LIBRARY_PATH="${lib.makeLibraryPath [ zlib stdenv.cc.cc ]}":LD_LIBRARY_PATH;
     source "${venvDir}/bin/activate"
     python -m pip install --upgrade pip
-    pip install -r requirements.txt
+    pip install selenium
+    if ! [[ -e $HOME/.local/bin/geckodriver ]]; then
+      curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep 'geckodriver-v[0-9].[0-9][0-9].[0-9]-linux64.tar.gz' | cut -d : -f 2,3 | tr -d \" | wget -qi -
+      tar -xvzf geckodriver*tar.gz
+      mkdir -p $HOME/.local/bin/
+      mv geckodriver $HOME/.local/bin/
+      rm -rf geckodriver*
+    fi
+    export PATH=$HOME/.local/bin:$PATH
+    ls test.py | entr -r sh -c 'python test.py'
   '';
 }
