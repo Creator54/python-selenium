@@ -3,7 +3,8 @@ pkgs.mkShell rec {
   name = "impurePythonEnv-Selenium";
   venvDir = "./.venv";
   buildInputs = [ python3 ];
-
+  EDITOR = builtins.getEnv "EDITOR";
+  PWD = builtins.getEnv "PWD";
   shellHook = ''
     set -h #remove "bash: hash: hashing disabled" warning !
     SOURCE_DATE_EPOCH=$(date +%s)
@@ -23,6 +24,8 @@ pkgs.mkShell rec {
       rm -rf geckodriver*
     fi
     export PATH=$HOME/.local/bin:$PATH
+    $TERM -e $SHELL -c '${EDITOR} ${PWD}/test.py' &
+    echo "Auto-reloading test.py !"
     ls test.py | entr -r sh -c 'python test.py'
   '';
 }
