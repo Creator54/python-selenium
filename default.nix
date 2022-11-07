@@ -24,8 +24,5 @@ pkgs.mkShell rec {
       rm -rf geckodriver*
     fi
     export PATH=$HOME/.local/bin:$PATH
-    $TERM -e $SHELL -c '${EDITOR} ${PWD}/test.py' &
-    echo "Auto-reloading test.py !"
-    ls test.py | entr -r sh -c 'python test.py'
   '';
 }
